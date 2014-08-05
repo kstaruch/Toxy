@@ -381,11 +381,10 @@
                    Content=""
                    Height="26" />
 
-            <TextBox Grid.Row="3"
+            <RichTextBox Grid.Row="3"
                      Margin="10,0,15,10"
                      x:Name="TextToSend"
-                     Height="55"
-                     TextWrapping="Wrap"
+                     Height="55"                     
                      KeyDown="TextToSend_KeyDown"
                      LostFocus="TextToSend_OnLostFocus"
                      GotFocus="TextToSend_OnGotFocus"

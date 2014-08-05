@@ -1268,14 +1268,14 @@ namespace Toxy
 
         private void TextToSend_KeyDown(object sender, KeyEventArgs e)
         {
-            string text = TextToSend.Text;
+            string text = new TextRange(TextToSend.Document.ContentStart, TextToSend.Document.ContentEnd).Text;//TextToSend.Text;
 
             if (e.Key == Key.Enter)
             {
                 if (Keyboard.IsKeyDown(Key.LeftShift))
                 {
-                    TextToSend.Text += Environment.NewLine;
-                    TextToSend.CaretIndex = TextToSend.Text.Length;
+                    TextToSend.AppendText(Environment.NewLine);
+                    TextToSend.CaretPosition = TextToSend.CaretPosition.GetLineStartPosition(1);
                     return;
                 }
 
@@ -1358,7 +1358,7 @@ namespace Toxy
 
                 ScrollChatBox();
 
-                TextToSend.Text = "";
+                TextToSend.Document.Blocks.Clear();// .Text = "";
                 e.Handled = true;
             }
             else if (e.Key == Key.Tab && this.ViewModel.IsGroupSelected)
@@ -1370,8 +1370,8 @@ namespace Toxy
                     if (!name.ToLower().StartsWith(text.ToLower()))
                         continue;
 
-                    TextToSend.Text = string.Format("{0}, ", name);
-                    TextToSend.SelectionStart = TextToSend.Text.Length;
+                    //TextToSend.Text = string.Format("{0}, ", name);
+                    //TextToSend.SelectionStart = TextToSend.Text.Length;
                 }
 
                 e.Handled = true;
@@ -1385,10 +1385,13 @@ namespace Toxy
 
         private void TextToSend_TextChanged(object sender, TextChangedEventArgs e)
         {
+            var emojis = new EmojiProvider();
+            emojis.ParseText(TextToSend);
+
             if (!this.ViewModel.IsFriendSelected)
                 return;
 
-            string text = TextToSend.Text;
+            string text = emojis.GetPlainText(TextToSend.Document);//TextToSend.Text;
 
             if (string.IsNullOrEmpty(text))
             {
