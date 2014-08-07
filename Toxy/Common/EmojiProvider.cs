@@ -82,6 +82,11 @@ namespace Toxy.Common
             }
         }
 
+        public void ParseText(Paragraph paragraph)
+        {
+            ProcessInlines(null, paragraph.Inlines);
+        }
+
         public string GetPlainText(FlowDocument doc)
         {   
             StringBuilder result = new StringBuilder();

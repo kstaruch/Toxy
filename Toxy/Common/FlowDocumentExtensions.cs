@@ -14,7 +14,7 @@ namespace Toxy.Common
 {
     static class FlowDocumentExtensions
     {
-        public static void AddNewMessageRow(this FlowDocument document, Tox tox, MessageData data)
+        public static void AddNewMessageRow(this FlowDocument document, Tox tox, MessageData data, EmojiProvider emojiProvider)
         {
             document.IsEnabled = true;
 
@@ -41,7 +41,7 @@ namespace Toxy.Common
             Paragraph messageParagraph = new Paragraph();
             messageParagraph.TextAlignment = TextAlignment.Left;
 
-            ProcessMessage(data, messageParagraph, false);
+            ProcessMessage(data, messageParagraph, false, emojiProvider);
 
             //messageParagraph.Inlines.Add(fakeHyperlink);
             messageTableCell.Blocks.Add(messageParagraph);
@@ -62,13 +62,13 @@ namespace Toxy.Common
             MessageRows.Rows.Add(newTableRow);
         }
 
-        public static void AppendMessage(this FlowDocument doc, MessageData data)
+        public static void AppendMessage(this FlowDocument doc, MessageData data, EmojiProvider emojiProvider)
         {
             TableRow tableRow = doc.FindChildren<TableRow>().Last();
             Paragraph para = (Paragraph)tableRow.FindChildren<TableCell>().ElementAt(1).Blocks.LastBlock;
             Paragraph timestampParagraph = (Paragraph)tableRow.FindChildren<TableCell>().Last().Blocks.LastBlock;
             timestampParagraph.Inlines.Add(Environment.NewLine + DateTime.Now.ToShortTimeString());
-            ProcessMessage(data, para, true);
+            ProcessMessage(data, para, true, emojiProvider);
         }
 
         public static FileTransfer AddNewFileTransfer(this FlowDocument doc, Tox tox, int friendnumber, int filenumber, string filename, ulong filesize, bool is_sender)
@@ -99,7 +99,7 @@ namespace Toxy.Common
             return transfer;
         }
 
-        static void ProcessMessage(MessageData data, Paragraph messageParagraph, bool append)
+        static void ProcessMessage(MessageData data, Paragraph messageParagraph, bool append, EmojiProvider emojiProvider)
         {
             List<string> urls = new List<string>();
             List<int> indices = new List<int>();
@@ -153,6 +153,8 @@ namespace Toxy.Common
                     messageParagraph.Inlines.Add(data.Message);
                 else
                     messageParagraph.Inlines.Add("\n" + data.Message);
+
+                emojiProvider.ParseText(messageParagraph);
             }
         }
     }

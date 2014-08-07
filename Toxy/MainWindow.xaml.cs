@@ -52,6 +52,8 @@ namespace Toxy
         private Icon notifyIcon;
         private Icon newMessageNotifyIcon;
 
+        private EmojiProvider emojis = new EmojiProvider();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -277,13 +279,13 @@ namespace Toxy
 
             if (groupdic.ContainsKey(groupnumber))
             {
-                groupdic[groupnumber].AddNewMessageRow(tox, data);
+                groupdic[groupnumber].AddNewMessageRow(tox, data, emojis);
             }
             else
             {
                 FlowDocument document = GetNewFlowDocument();
                 groupdic.Add(groupnumber, document);
-                groupdic[groupnumber].AddNewMessageRow(tox, data);
+                groupdic[groupnumber].AddNewMessageRow(tox, data, emojis);
             }
 
             var group = this.ViewModel.GetGroupObjectByNumber(groupnumber);
@@ -314,20 +316,20 @@ namespace Toxy
                 if (run != null)
                 {
                     if (run.Text == data.Username)
-                        groupdic[groupnumber].AppendMessage(data);
+                        groupdic[groupnumber].AppendMessage(data, emojis);
                     else
-                        groupdic[groupnumber].AddNewMessageRow(tox, data);
+                        groupdic[groupnumber].AddNewMessageRow(tox, data, emojis);
                 }
                 else
                 {
-                    groupdic[groupnumber].AddNewMessageRow(tox, data);
+                    groupdic[groupnumber].AddNewMessageRow(tox, data, emojis);
                 }
             }
             else
             {
                 FlowDocument document = GetNewFlowDocument();
                 groupdic.Add(groupnumber, document);
-                groupdic[groupnumber].AddNewMessageRow(tox, data);
+                groupdic[groupnumber].AddNewMessageRow(tox, data, emojis);
             }
 
             var group = this.ViewModel.GetGroupObjectByNumber(groupnumber);
@@ -637,13 +639,13 @@ namespace Toxy
 
             if (convdic.ContainsKey(friendnumber))
             {
-                convdic[friendnumber].AddNewMessageRow(tox, data);
+                convdic[friendnumber].AddNewMessageRow(tox, data, emojis);
             }
             else
             {
                 FlowDocument document = GetNewFlowDocument();
                 convdic.Add(friendnumber, document);
-                convdic[friendnumber].AddNewMessageRow(tox, data);
+                convdic[friendnumber].AddNewMessageRow(tox, data, emojis);
             }
 
             var friend = this.ViewModel.GetFriendObjectByNumber(friendnumber);
@@ -686,20 +688,20 @@ namespace Toxy
                 if (run != null)
                 {
                     if (run.Text == tox.GetName(friendnumber))
-                        convdic[friendnumber].AppendMessage(data);
+                        convdic[friendnumber].AppendMessage(data, emojis);
                     else
-                        convdic[friendnumber].AddNewMessageRow(tox, data);
+                        convdic[friendnumber].AddNewMessageRow(tox, data, emojis);
                 }
                 else
                 {
-                    convdic[friendnumber].AddNewMessageRow(tox, data);
+                    convdic[friendnumber].AddNewMessageRow(tox, data, emojis);
                 }
             }
             else
             {
-                FlowDocument document = GetNewFlowDocument();
+                FlowDocument document = GetNewFlowDocument();                
                 convdic.Add(friendnumber, document);
-                convdic[friendnumber].AddNewMessageRow(tox, data);
+                convdic[friendnumber].AddNewMessageRow(tox, data, emojis);
             }
 
             var friend = this.ViewModel.GetFriendObjectByNumber(friendnumber);
@@ -1003,7 +1005,7 @@ namespace Toxy
 
         private void FriendRequestSelectedAction(IFriendObject friendObject, bool isSelected)
         {
-            friendObject.RequestFlowDocument.AddNewMessageRow(tox, friendObject.RequestMessageData);
+            friendObject.RequestFlowDocument.AddNewMessageRow(tox, friendObject.RequestMessageData, emojis);
         }
 
         private void FriendRequestAcceptAction(IFriendObject friendObject)
@@ -1268,7 +1270,7 @@ namespace Toxy
 
         private void TextToSend_KeyDown(object sender, KeyEventArgs e)
         {
-            string text = new TextRange(TextToSend.Document.ContentStart, TextToSend.Document.ContentEnd).Text;//TextToSend.Text;
+            string text = emojis.GetPlainText(TextToSend.Document);
 
             if (e.Key == Key.Enter)
             {
@@ -1306,13 +1308,13 @@ namespace Toxy
                     {
                         if (convdic.ContainsKey(selectedChatNumber))
                         {
-                            convdic[selectedChatNumber].AddNewMessageRow(tox, data);
+                            convdic[selectedChatNumber].AddNewMessageRow(tox, data, emojis);
                         }
                         else
                         {
                             FlowDocument document = GetNewFlowDocument();
                             convdic.Add(selectedChatNumber, document);
-                            convdic[selectedChatNumber].AddNewMessageRow(tox, data);
+                            convdic[selectedChatNumber].AddNewMessageRow(tox, data, emojis);
                         }
                     }
                 }
@@ -1338,20 +1340,20 @@ namespace Toxy
                             if (run != null)
                             {
                                 if (run.Text == data.Username)
-                                    convdic[selectedChatNumber].AppendMessage(data);
+                                    convdic[selectedChatNumber].AppendMessage(data, emojis);
                                 else
-                                    convdic[selectedChatNumber].AddNewMessageRow(tox, data);
+                                    convdic[selectedChatNumber].AddNewMessageRow(tox, data, emojis);
                             }
                             else
                             {
-                                convdic[selectedChatNumber].AddNewMessageRow(tox, data);
+                                convdic[selectedChatNumber].AddNewMessageRow(tox, data, emojis);
                             }
                         }
                         else
                         {
                             FlowDocument document = GetNewFlowDocument();
                             convdic.Add(selectedChatNumber, document);
-                            convdic[selectedChatNumber].AddNewMessageRow(tox, data);
+                            convdic[selectedChatNumber].AddNewMessageRow(tox, data, emojis);
                         }
                     }
                 }
@@ -1384,8 +1386,7 @@ namespace Toxy
         }
 
         private void TextToSend_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var emojis = new EmojiProvider();
+        {   
             emojis.ParseText(TextToSend);
 
             if (!this.ViewModel.IsFriendSelected)
